@@ -14,6 +14,34 @@ class Game_sprite(sprite.Sprite):
 
 ball = Game_sprite('земля.png', 200, 100, 50, 50, 10)
 
+
+class Player(Game_sprite):
+    def right(self):
+        keys = key.get_pressed()
+        if keys[K_UP] and self.rect.y > 10:
+            self.rect.y -= self.speed
+        if keys[K_DOWN] and self.rect.y < win_h - 90:
+            self.rect.y += self.speed
+    def left(self):
+        keys = key.get_pressed()
+        if keys[K_UP] and self.rect.y > 10:
+            self.rect.y -= self.speed
+        if keys[K_DOWN] and self.rect.y < win_h - 90:
+            self.rect.y += self.speed
+
+platform1 = Player ('палка.png', 30, 250, 90, 90, 10)
+platform2 = Player ('палка.png', 420, 250, 90, 90, 10)
+
+#Шрифт
+font.init()
+font1 = font.Font(None, 55)
+text1 = font1.render('Игрок 1 проиграл', 1, (225,225,225))
+text2 = font1.render('Игрок 2 проиграл', 1, (225,225,225))
+
+#Перемещение мяча
+speed_x = 10
+speed_y = 10
+
 back = (0, 63, 170)
 win_h = 500
 win_w = 500
@@ -21,19 +49,36 @@ win = display.set_mode((win_w, win_h))
 
 game = True
 finish = False
-
-
 clock = time.Clock()
-
 while game:
-    win.fill(back)
     for e in event.get():
         if e.type == QUIT:
             game = False
-            
-    if finish != True:
-        win.fill(back)
-        ball.reset()
+        if finish != True:
+            win.fill(back)
+            ball.reset()
+
+            ball.rect.x += speed_x
+            ball.rect.y += speed_y
+
+            if sprite.collide_rect(platform1, ball) or sprite.collide_rect(platform2, ball):
+                speed_x *=-1
+            if ball.rect.y > win_h-90 or ball.rect.y < 0:
+                speed_y *= -1
+
+            if ball.rect.x < 0:
+                finish = True
+                win.blit(text1, (100, 200))
+            if ball.rect.x > win_w:
+                finish = True
+                win.blit(text2, (100, 200))
+
+
+
+            platform1.reset()
+            platform2.reset()
+            platform1.left()
+            platform2.right()
 
     display.update()
     clock.tick(60)
